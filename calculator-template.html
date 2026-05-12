@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a1a">
+  <title>{{TITLE}}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f5f5f3;
+      min-height: 100vh;
+      color: #2b2b2b;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page-header {
+      background: #1a1a1a; color: #fff;
+      padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top));
+      text-align: center;
+    }
+    .page-header__brand {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.1em;
+      color: #c8a25e; text-transform: uppercase; margin: 0 0 2px;
+    }
+    .page-header__phone { font-size: 15px; color: #fff; text-decoration: none; }
+    .sk-calc { max-width: 980px; margin: 0 auto; padding: 24px 16px; }
+    .sk-calc__header { text-align: center; margin-bottom: 24px; }
+    .sk-calc__title {
+      font-size: 24px; font-weight: 700; margin: 0 0 8px;
+      color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.25;
+    }
+    .sk-calc__subtitle { font-size: 14px; color: #6b6b6b; margin: 0; line-height: 1.5; }
+    .sk-calc__layout {
+      display: grid; grid-template-columns: 1fr 360px;
+      gap: 20px; align-items: start;
+    }
+    .sk-calc__form, .sk-calc__result {
+      background: #fff; border: 1px solid #e8e8e8; border-radius: 12px;
+    }
+    .sk-calc__form { padding: 20px; }
+    .sk-calc__result { padding: 22px; background: #1a1a1a; color: #fff; position: sticky; top: 16px; }
+    .sk-calc__field { margin-bottom: 18px; }
+    .sk-calc__field:last-child { margin-bottom: 0; }
+    .sk-calc__label {
+      display: block; font-size: 12px; font-weight: 600; color: #6b6b6b;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .sk-calc__select, .sk-calc__input {
+      width: 100%; padding: 11px 14px; font-size: 15px;
+      border: 1px solid #d8d8d8; border-radius: 8px; background: #fff;
+      color: #2b2b2b; font-family: inherit;
+      -webkit-appearance: none; appearance: none;
+    }
+    .sk-calc__select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat; background-position: right 12px center;
+      background-size: 16px; padding-right: 36px;
+    }
+    .sk-calc__area { display: flex; align-items: center; gap: 14px; }
+    .sk-calc__range { flex: 1; -webkit-appearance: none; height: 6px;
+      background: #e8e8e8; border-radius: 3px; outline: none; }
+    .sk-calc__range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: #c8a25e; cursor: pointer; border: 3px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .sk-calc__range::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%; background: #c8a25e;
+      cursor: pointer; border: 3px solid #fff;
+    }
+    .sk-calc__area-value {
+      font-weight: 700; color: #1a1a1a; font-size: 15px;
+      min-width: 72px; text-align: right;
+    }
+    .sk-calc__grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .sk-calc__result-label {
+      font-size: 12px; color: #c8a25e; text-transform: uppercase;
+      letter-spacing: 0.1em; margin: 0 0 6px;
+    }
+    .sk-calc__result-total {
+      font-size: 32px; font-weight: 700; margin: 0 0 4px;
+      letter-spacing: -0.02em; line-height: 1.1;
+    }
+    .sk-calc__result-perm2 {
+      font-size: 14px; color: rgba(255,255,255,0.7); margin: 0 0 18px;
+    }
+    .sk-calc__breakdown {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 14px; margin-top: 14px;
+    }
+    .sk-calc__breakdown-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; padding: 5px 0;
+      color: rgba(255,255,255,0.85);
+    }
+    .sk-calc__breakdown-row strong { color: #fff; font-weight: 600; }
+    .sk-calc__button {
+      display: block; width: 100%; padding: 14px;
+      background: #c8a25e; color: #1a1a1a;
+      border: none; border-radius: 8px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; margin-top: 16px;
+      font-family: inherit; -webkit-appearance: none;
+    }
+    .sk-calc__button:active { background: #b88e4a; }
+    .sk-calc__button--ghost {
+      background: transparent; color: #c8a25e;
+      border: 1px solid #c8a25e; margin-top: 10px;
+    }
+    .sk-calc__button--ghost:active { background: rgba(200,162,94,0.1); }
+    @media (max-width: 760px) {
+      .sk-calc__layout { grid-template-columns: 1fr; }
+      .sk-calc__result { position: static; }
+      .sk-calc__grid { grid-template-columns: 1fr; }
+      .sk-calc__title { font-size: 20px; }
+      .sk-calc__form { padding: 16px; }
+      .sk-calc__result { padding: 18px; }
+    }
+    .page-footer {
+      text-align: center; padding: 24px 16px max(24px, env(safe-area-inset-bottom));
+      font-size: 12px; color: #888;
+    }
+    .meta-stamp {
+      text-align: center; font-size: 11px; color: #aaa;
+      padding: 0 16px 16px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="page-header__brand">{{COMPANY}}</p>
+  <a href="tel:{{PHONE_TEL}}" class="page-header__phone">{{PHONE_DISPLAY}}</a>
+</header>
+
+<div class="sk-calc">
+  <div class="sk-calc__header">
+    <h1 class="sk-calc__title">{{TITLE}}</h1>
+    <p class="sk-calc__subtitle">{{SUBTITLE}}</p>
+  </div>
+
+  <div class="sk-calc__layout">
+    <div class="sk-calc__form">
+      <div class="sk-calc__field">
+        <label class="sk-calc__label" for="sk-area">Площадь дома</label>
+        <div class="sk-calc__area">
+          <input type="range" id="sk-area" class="sk-calc__range">
+          <span class="sk-calc__area-value" id="sk-area-value">— м²</span>
+        </div>
+      </div>
+
+      <div class="sk-calc__field">
+        <div class="sk-calc__grid">
+          <div>
+            <label class="sk-calc__label" for="sk-floors">Этажность</label>
+            <select id="sk-floors" class="sk-calc__select"></select>
+          </div>
+          <div>
+            <label class="sk-calc__label" for="sk-foundation">Фундамент</label>
+            <select id="sk-foundation" class="sk-calc__select"></select>
+          </div>
+          <div>
+            <label class="sk-calc__label" for="sk-walls">Материал стен</label>
+            <select id="sk-walls" class="sk-calc__select"></select>
+          </div>
+          <div>
+            <label class="sk-calc__label" for="sk-roof">Кровля</label>
+            <select id="sk-roof" class="sk-calc__select"></select>
+          </div>
+          <div>
+            <label class="sk-calc__label" for="sk-facade">Отделка фасада</label>
+            <select id="sk-facade" class="sk-calc__select"></select>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="sk-calc__button" id="sk-submit">Получить расчёт</button>
+      <button type="button" class="sk-calc__button sk-calc__button--ghost" id="sk-pos-btn">{{POS_BUTTON}}</button>
+    </div>
+
+    <div class="sk-calc__result">
+      <p class="sk-calc__result-label">Стоимость дома</p>
+      <p class="sk-calc__result-total" id="sk-total">— ₽</p>
+      <p class="sk-calc__result-perm2" id="sk-perm2">— ₽/м²</p>
+      <div class="sk-calc__breakdown" id="sk-breakdown"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <p>&copy; {{COMPANY}}. Расчёт носит предварительный характер.</p>
+</footer>
+<p class="meta-stamp">Прайс актуален на {{GENERATED_AT}}</p>
+
+<script>
+// ============================================================
+// ДАННЫЕ ПРАЙСА — генерируются скриптом update_calculator.py из prices.xlsx
+// НЕ РЕДАКТИРОВАТЬ ВРУЧНУЮ. Изменяйте цены в prices.xlsx и запускайте обновление.
+// ============================================================
+var PRICES = /*{{PRICES_INJECTION}}*/null;
+
+// ============================================================
+// ЛОГИКА КАЛЬКУЛЯТОРА
+// ============================================================
+(function() {
+  var els = {
+    area: document.getElementById('sk-area'),
+    areaValue: document.getElementById('sk-area-value'),
+    floors: document.getElementById('sk-floors'),
+    foundation: document.getElementById('sk-foundation'),
+    walls: document.getElementById('sk-walls'),
+    roof: document.getElementById('sk-roof'),
+    facade: document.getElementById('sk-facade'),
+    total: document.getElementById('sk-total'),
+    perm2: document.getElementById('sk-perm2'),
+    breakdown: document.getElementById('sk-breakdown'),
+    submit: document.getElementById('sk-submit'),
+    pos: document.getElementById('sk-pos-btn')
+  };
+
+  // Площадь
+  els.area.min = PRICES.params.area_min;
+  els.area.max = PRICES.params.area_max;
+  els.area.value = PRICES.params.area_default;
+  els.area.step = 10;
+
+  function fillSelect(selectEl, items) {
+    items.forEach(function(it) {
+      var opt = document.createElement('option');
+      opt.value = it.key;
+      opt.textContent = it.name;
+      opt.dataset.price = it.price;
+      selectEl.appendChild(opt);
+    });
+  }
+
+  // Этажность
+  PRICES.floors.forEach(function(f) {
+    var opt = document.createElement('option');
+    opt.value = f.key;
+    opt.textContent = f.name;
+    opt.dataset.coef = f.coef;
+    if (f.key === '2') opt.selected = true;
+    els.floors.appendChild(opt);
+  });
+
+  fillSelect(els.foundation, PRICES.foundation);
+  fillSelect(els.walls,      PRICES.walls);
+  fillSelect(els.roof,       PRICES.roof);
+  fillSelect(els.facade,     PRICES.facade);
+
+  function fmt(n) { return new Intl.NumberFormat('ru-RU').format(Math.round(n)) + ' ₽'; }
+
+  function getPrice(selectEl) {
+    var opt = selectEl.options[selectEl.selectedIndex];
+    return {
+      key: opt.value,
+      name: opt.textContent,
+      price: parseFloat(opt.dataset.price)
+    };
+  }
+
+  function calculate() {
+    var area = parseFloat(els.area.value);
+    var floorsOpt = els.floors.options[els.floors.selectedIndex];
+    var floorsCoef = parseFloat(floorsOpt.dataset.coef);
+    var floorsName = floorsOpt.textContent;
+
+    var f = getPrice(els.foundation);
+    var w = getPrice(els.walls);
+    var r = getPrice(els.roof);
+    var fa = getPrice(els.facade);
+
+    // Стоимость по статьям (₽/м² × площадь × коэф. этажности)
+    var costFoundation = f.price * area;                       // фундамент — по площади основания
+    var costWalls      = w.price * area * floorsCoef;          // стены растут с этажностью
+    var costRoof       = r.price * area;                       // кровля — по площади основания
+    // Фасад: площадь фасада ~ периметр × высота × этажность × коэф
+    var perimeter      = Math.sqrt(area) * 4 * PRICES.params.facade_coef;
+    var facadeArea     = perimeter * PRICES.params.floor_height * floorsCoef;
+    var costFacade     = fa.price * facadeArea;
+
+    var subtotal = costFoundation + costWalls + costRoof + costFacade;
+    var design   = subtotal * PRICES.params.design_markup;
+    var total    = subtotal + design;
+
+    return {
+      area: area, floorsCoef: floorsCoef, floorsName: floorsName,
+      f: f, w: w, r: r, fa: fa,
+      costFoundation: costFoundation,
+      costWalls: costWalls,
+      costRoof: costRoof,
+      costFacade: costFacade,
+      design: design,
+      total: total,
+      perM2: total / area
+    };
+  }
+
+  function render() {
+    var c = calculate();
+    els.areaValue.textContent = c.area + ' м²';
+    els.total.textContent = fmt(c.total);
+    els.perm2.textContent = fmt(c.perM2) + ' / м²';
+    els.breakdown.innerHTML =
+      row('Фундамент',        c.costFoundation) +
+      row('Стены',             c.costWalls) +
+      row('Кровля',            c.costRoof) +
+      row('Фасад',             c.costFacade) +
+      row('Проектирование',    c.design);
+  }
+
+  function row(label, value) {
+    return '<div class="sk-calc__breakdown-row"><span>' + label +
+           '</span><strong>' + fmt(value) + '</strong></div>';
+  }
+
+  // События
+  ['input', 'change'].forEach(function(ev) {
+    els.area.addEventListener(ev, render);
+  });
+  [els.floors, els.foundation, els.walls, els.roof, els.facade].forEach(function(el) {
+    el.addEventListener('change', render);
+  });
+
+  // Отправка через WhatsApp
+  els.submit.addEventListener('click', function() {
+    var c = calculate();
+    var lines = [
+      'Здравствуйте! Хочу заказать расчёт дома.',
+      '',
+      'Параметры:',
+      '• Площадь: ' + c.area + ' м²',
+      '• Этажность: ' + c.floorsName,
+      '• Фундамент: ' + c.f.name,
+      '• Стены: ' + c.w.name,
+      '• Кровля: ' + c.r.name,
+      '• Фасад: ' + c.fa.name,
+      '',
+      'Расчётная стоимость: ' + fmt(c.total),
+      'За м²: ' + fmt(c.perM2)
+    ];
+    var url = 'https://wa.me/' + PRICES.contacts.whatsapp +
+              '?text=' + encodeURIComponent(lines.join('\n'));
+    window.open(url, '_blank');
+  });
+
+  // Кнопка ПОС
+  els.pos.addEventListener('click', function() {
+    var c = calculate();
+    var lines = [
+      'Здравствуйте! Хочу заказать Проект организации строительства (ПОС).',
+      '',
+      'Параметры объекта:',
+      '• Площадь: ' + c.area + ' м²',
+      '• Этажность: ' + c.floorsName,
+      '• Фундамент: ' + c.f.name,
+      '• Стены: ' + c.w.name,
+      '• Кровля: ' + c.r.name,
+      '• Фасад: ' + c.fa.name,
+      '',
+      'Прошу рассчитать стоимость и сроки разработки ПОС (фикс. ставка ' +
+        fmt(PRICES.params.pos_fixed) + ').'
+    ];
+    var url = 'https://wa.me/' + PRICES.contacts.whatsapp +
+              '?text=' + encodeURIComponent(lines.join('\n'));
+    window.open(url, '_blank');
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
